@@ -1,33 +1,23 @@
-# Use a compatible Java runtime image
+
+# First stage: Build the application
 FROM eclipse-temurin:21-jdk-alpine AS build
 
-# Set the working directory
 WORKDIR /opt/app
 
-# Copy only the pom.xml first to leverage Docker cache
-COPY pom.xml .
+# Install Maven
+RUN apk add --no-cache maven
 
-# Download dependencies
-RUN mvn dependency:go-offline
-
-# Copy the entire source code
-COPY src ./src
-
-# Build the application
+# Copy source code and build the application
+COPY . .
 RUN mvn clean package -DskipTests
 
-# Create a lightweight runtime image
+# Second stage: Create the runtime image
 FROM eclipse-temurin:21-jre-alpine
 
-# Copy the built jar file
+WORKDIR /app
 COPY --from=build /opt/app/target/*.jar /app/app.jar
 
-# Set the working directory
-WORKDIR /app
-
-# Expose port if needed (uncomment and adjust as necessary)
-EXPOSE 8081
-
-# Specify the entrypoint
+# Set the command to run the application
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+
 
