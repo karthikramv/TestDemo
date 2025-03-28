@@ -1,5 +1,5 @@
 # Use a compatible Java runtime image
-FROM maven:3.8.4-openjdk-17-slim AS build
+FROM maven:3.9.6-eclipse-temurin-21 AS builder
 
 # Set the working directory
 WORKDIR /opt/app
@@ -17,7 +17,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Create a lightweight runtime image
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jdk-alpine
 
 # Copy the built jar file
 COPY --from=build /opt/app/target/*.jar /app/app.jar
