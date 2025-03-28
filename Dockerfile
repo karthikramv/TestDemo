@@ -26,7 +26,7 @@ COPY --from=build /opt/app/target/*.jar /app/app.jar
 WORKDIR /app
 
 # Expose port if needed (uncomment and adjust as necessary)
-# EXPOSE 8080
+EXPOSE 8081
 
 # Specify the entrypoint
 ENTRYPOINT ["java", "-jar", "app.jar"]
