@@ -1,5 +1,5 @@
 # Use a compatible Java runtime image
-FROM maven:3.9.6-eclipse-temurin-21 AS builder
+FROM eclipse-temurin:21-jdk-alpine AS build
 
 # Set the working directory
 WORKDIR /opt/app
@@ -17,7 +17,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Create a lightweight runtime image
-FROM eclipse-temurin:21-jdk-alpine
+FROM eclipse-temurin:21-jre-alpine
 
 # Copy the built jar file
 COPY --from=build /opt/app/target/*.jar /app/app.jar
@@ -29,4 +29,5 @@ WORKDIR /app
 EXPOSE 8081
 
 # Specify the entrypoint
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+
