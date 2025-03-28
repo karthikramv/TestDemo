@@ -1,25 +1,32 @@
-# Use Maven with Java 21 to build the application
-FROM maven:3.9.6-eclipse-temurin-21 AS builder
+# Use a compatible Java runtime image
+FROM maven:3.8.4-openjdk-17-slim AS build
 
-WORKDIR /app
+# Set the working directory
+WORKDIR /opt/app
 
-# Copy the project files
+# Copy only the pom.xml first to leverage Docker cache
 COPY pom.xml .
+
+# Download dependencies
+RUN mvn dependency:go-offline
+
+# Copy the entire source code
 COPY src ./src
 
 # Build the application
 RUN mvn clean package -DskipTests
 
-# Use Java 21 runtime image for running the app
-FROM eclipse-temurin:21-jdk-alpine
+# Create a lightweight runtime image
+FROM eclipse-temurin:17-jre-alpine
 
+# Copy the built jar file
+COPY --from=build /opt/app/target/*.jar /app/app.jar
+
+# Set the working directory
 WORKDIR /app
 
-# Copy the built JAR from the builder stage
-COPY --from=builder /app/target/*.jar app.jar
+# Expose port if needed (uncomment and adjust as necessary)
+# EXPOSE 8080
 
-# Expose the application port
-EXPOSE 8080
-
-# Run the application
-CMD ["java", "-jar", "app.jar"]
+# Specify the entrypoint
+ENTRYPOINT ["java", "-jar", "app.jar"]
