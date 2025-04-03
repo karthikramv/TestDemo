@@ -2,19 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: testDemo-k8s-deployments
-  namespace: default
-  labels:
-    app: testDemo-k8s
 spec:
-  replicas: 2
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
   selector:
     matchLabels:
       app: testDemo-k8s
+  replicas: 2
   template:
     metadata:
       labels:
@@ -24,63 +16,20 @@ spec:
       - name: testDemo-k8s
         image: karthikvram/testdemo
         imagePullPolicy: IfNotPresent
-        resources:
-          requests:
-            cpu: 100m
-            memory: 100Mi
-          limits:
-            cpu: 100m
-            memory: 100Mi
-        livenessProbe:
-          tcpSocket:
-            port: 8081  # Fixed from 80
-          initialDelaySeconds: 5
-          timeoutSeconds: 5
-          successThreshold: 1
-          failureThreshold: 3
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /_status/healthz
-            port: 8081  # Fixed from 80
-          initialDelaySeconds: 5
-          timeoutSeconds: 2
-          successThreshold: 1
-          failureThreshold: 3
-          periodSeconds: 10
-        env:
-        - name: DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: testDemo-k8s
-              key: DB_HOST
         ports:
         - containerPort: 8081
-          name: http
-        volumeMounts:
-        - name: localtime
-          mountPath: /etc/localtime
-      volumes:
-      - name: localtime
-        hostPath:
-          path: /usr/share/zoneinfo/Asia/Shanghai
-      restartPolicy: Always
+		
+		
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: testDemo-k8s-service
-  namespace: default
 spec:
   selector:
     app: testDemo-k8s  # Fixed from testDemo_k8Service
-  type: NodePort  # Keep as ClusterIP unless you want external access
-  sessionAffinity: None
-  sessionAffinityConfig:
-    clientIP:
-      timeoutSeconds: 10800
   ports:
-  - name: http
-    protocol: TCP
+  - protocol: "TCP"
     port: 8081
     targetPort: 8081
+  type: NodePort  # Keep as ClusterIP unless you want external access
