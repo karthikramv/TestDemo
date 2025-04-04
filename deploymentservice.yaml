@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: testDemo-k8s-deployments
+  name: testdemo-k8s-deployments
 spec:
   selector:
     matchLabels:
-      app: testDemo-k8s
+      app: testdemo-k8s
   replicas: 2
   template:
     metadata:
       labels:
-        app: testDemo-k8s
+        app: testdemo-k8s
     spec:
       containers:
-      - name: testDemo-k8s
+      - name: testdemo-k8s
         image: karthikvram/testdemo
         imagePullPolicy: IfNotPresent
         ports:
@@ -25,7 +25,7 @@ metadata:
   name: testdemo-k8s-service
 spec:
   selector:
-    app: testDemo-k8s  # Fixed from testDemo_k8Service
+    app: testdemo-k8s  # Fixed from testdemo_k8Service
   ports:
   - protocol: "TCP"
     port: 8081
